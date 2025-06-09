@@ -28,9 +28,10 @@
       font-size: 18px;
       cursor: pointer;
     }
-    #status, #linkContainer {
+    #status, #result, #linkContainer {
       margin-top: 20px;
       font-size: 18px;
+      text-align: center;
     }
     input {
       padding: 5px;
@@ -52,6 +53,7 @@
     <button onclick="makeChoice('scissors')">Scissors</button>
   </div>
   <div id="status"></div>
+  <div id="result"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
@@ -116,14 +118,27 @@
 
       onValue(gameRef, (snapshot) => {
         const data = snapshot.val();
-        if (data.choices && data.choices.p1 && data.choices.p2) {
-          const p1 = data.choices.p1;
-          const p2 = data.choices.p2;
-          const result = getResult(p1, p2);
-          document.getElementById('status').innerText = `Player 1: ${p1}, Player 2: ${p2} => ${result}`;
+        if (!data) return;
+
+        const choices = data.choices || {};
+        if (choices.p1) {
+          document.getElementById('status').innerText = `Игрок 1 сделал выбор.`;
+        }
+        if (choices.p2) {
+          const prev = document.getElementById('status').innerText;
+          document.getElementById('status').innerText = `${prev}\nИгрок 2 сделал выбор.`;
+        }
+
+        if (choices.p1 && choices.p2) {
+          const result = getResult(choices.p1, choices.p2);
+          const message = `Игрок 1 выбрал: ${choices.p1} | Игрок 2 выбрал: ${choices.p2} \n${result}`;
+          document.getElementById('result').innerText = message;
+
           setTimeout(() => {
             set(ref(db, `games/${code}/choices`), {});
-          }, 3000);
+            document.getElementById('result').innerText = '';
+            document.getElementById('status').innerText = '';
+          }, 4000);
         }
       });
     }
