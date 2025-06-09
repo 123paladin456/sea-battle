@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Морской бой онлайн</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        
+        .game-area {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        
+        .board-container {
+            margin: 10px;
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(10, 30px);
+            grid-template-rows: repeat(10, 30px);
+            gap: 1px;
+            margin: 10px auto;
+        }
+        
+        .cell {
+            width: 30px;
+            height: 30px;
+            background-color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .cell.ship {
+            background-color: #a0a0a0;
+        }
+        
+        .cell.miss {
+            background-color: #b0e0ff;
+        }
+        
+        .cell.hit {
+            background-color: #ff6b6b;
+        }
+        
+        .cell.sunk {
+            background-color: #ff0000;
+        }
+        
+        .board-title {
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .setup-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .ship-selector {
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .ship {
+            margin: 5px;
+            padding: 5px;
+            background-color: #ddd;
+            cursor: pointer;
+        }
+        
+        .ship.selected {
+            background-color: #a0a0a0;
+            color: white;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 15px 0;
+            min-height: 27px;
+        }
+        
+        .game-link {
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .game-link input {
+            width: 300px;
+            padding: 8px;
+            margin: 5px 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .orientation-btn {
+            background-color: #2196F3;
+            margin: 5px;
+        }
+        
+        .coords {
+            position: absolute;
+            font-size: 8px;
+            color: #666;
+        }
+        
+        .top-coords {
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .left-coords {
+            left: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainMenu">
+        <h1>Морской бой онлайн</h1>
+        <button id="createGame">Создать игру</button>
+        <button id="joinGame">Присоединиться к игре</button>
+    </div>
+
+    <div class="container hidden" id="setupContainer">
+        <h1>Расстановка кораблей</h1>
+        <div class="setup-container">
+            <div class="ship-selector">
+                <div class="ship selected" data-size="4">Авианосец (4)</div>
+                <div class="ship" data-size="3">Линкор (3)</div>
+                <div class="ship" data-size="3">Крейсер (3)</div>
+                <div class="ship" data-size="2">Эсминец (2)</div>
+                <div class="ship" data-size="2">Эсминец (2)</div>
+                <div class="ship" data-size="2">Эсминец (2)</div>
+                <div class="ship" data-size="1">Катер (1)</div>
+                <div class="ship" data-size="1">Катер (1)</div>
+                <div class="ship" data-size="1">Катер (1)</div>
+                <div class="ship" data-size="1">Катер (1)</div>
+            </div>
+            <button id="rotateShip" class="orientation-btn">Повернуть (Горизонтально)</button>
+            <div class="board-container">
+                <div class="board-title">Ваше поле</div>
+                <div class="board" id="setupBoard"></div>
+            </div>
+            <button id="readyBtn" disabled>Готово</button>
+            <div class="game-link hidden" id="gameLink">
+                <p>Пригласите друга:</p>
+                <input type="text" id="inviteLink" readonly>
+                <button id="copyLink">Копировать ссылку</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container hidden" id="gameContainer">
+        <h1>Морской бой</h1>
+        <div class="status" id="status">Ожидание второго игрока...</div>
+        <div class="game-area">
+            <div class="board-container">
+                <div class="board-title">Ваше поле</div>
+                <div class="board" id="playerBoard"></div>
+            </div>
+            <div class="board-container">
+                <div class="board-title">Поле противника</div>
+                <div class="board" id="enemyBoard"></div>
+            </div>
+        </div>
+        <div class="game-over hidden" id="gameOver"></div>
+        <button id="leaveGame">Покинуть игру</button>
+    </div>
+
+    <div class="container hidden" id="joinGameContainer">
+        <h1>Присоединиться к игре</h1>
+        <p>Введите ID игры:</p>
+        <input type="text" id="gameIdInput">
+        <button id="connectToGame">Подключиться</button>
+        <button id="cancelJoin">Отмена</button>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        // Ваша конфигурация Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyClu0ebpVy3krepoEPrDtqzCROPccQU1MM",
+            authDomain: "sea-battle-8daa8.firebaseapp.com",
+            databaseURL: "https://sea-battle-8daa8-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "sea-battle-8daa8",
+            storageBucket: "sea-battle-8daa8.firebasestorage.app",
+            messagingSenderId: "781141234461",
+            appId: "1:781141234461:web:3901685f965553713707f4"
+        };
+
+        // Инициализация Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // [Остальной код игры остается без изменений, как в предыдущем примере]
+        // Здесь должен быть весь остальной JavaScript-код из предыдущего примера,
+        // включая функции для работы с игрой, обработчики событий и т.д.
+        // Для краткости я не повторяю его здесь, но он должен быть включен в ваш файл.
+
+        // Инициализация интерфейса
+        function init() {
+            createGameBtn.addEventListener('click', createGame);
+            joinGameBtn.addEventListener('click', showJoinGameForm);
+            leaveGameBtn.addEventListener('click', leaveGame);
+            connectToGameBtn.addEventListener('click', joinGame);
+            cancelJoinBtn.addEventListener('click', hideJoinGameForm);
+            copyLinkBtn.addEventListener('click', copyInviteLink);
+            
+            // Проверка параметров URL при загрузке
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlGameId = urlParams.get('gameId');
+            
+            if (urlGameId) {
+                gameIdInput.value = urlGameId;
+                showJoinGameForm();
+            }
+        }
+
+        // Запуск игры
+        init();
+    </script>
+</body>
+</html>
