@@ -254,27 +254,70 @@
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // [Остальной код игры остается без изменений, как в предыдущем примере]
-        // Здесь должен быть весь остальной JavaScript-код из предыдущего примера,
-        // включая функции для работы с игрой, обработчики событий и т.д.
-        // Для краткости я не повторяю его здесь, но он должен быть включен в ваш файл.
+        // Получение ссылок на элементы DOM
+        const createGameBtn = document.getElementById('createGame');
+        const joinGameBtn = document.getElementById('joinGame');
+        const leaveGameBtn = document.getElementById('leaveGame');
+        const connectToGameBtn = document.getElementById('connectToGame');
+        const cancelJoinBtn = document.getElementById('cancelJoin');
+        const copyLinkBtn = document.getElementById('copyLink');
+        const gameIdInput = document.getElementById('gameIdInput');
 
         // Инициализация интерфейса
         function init() {
-            createGameBtn.addEventListener('click', createGame);
-            joinGameBtn.addEventListener('click', showJoinGameForm);
-            leaveGameBtn.addEventListener('click', leaveGame);
-            connectToGameBtn.addEventListener('click', joinGame);
-            cancelJoinBtn.addEventListener('click', hideJoinGameForm);
-            copyLinkBtn.addEventListener('click', copyInviteLink);
+            // Проверка, что элементы существуют, перед добавлением обработчиков
+            if (createGameBtn) createGameBtn.addEventListener('click', createGame);
+            if (joinGameBtn) joinGameBtn.addEventListener('click', showJoinGameForm);
+            if (leaveGameBtn) leaveGameBtn.addEventListener('click', leaveGame);
+            if (connectToGameBtn) connectToGameBtn.addEventListener('click', joinGame);
+            if (cancelJoinBtn) cancelJoinBtn.addEventListener('click', hideJoinGameForm);
+            if (copyLinkBtn) copyLinkBtn.addEventListener('click', copyInviteLink);
             
             // Проверка параметров URL при загрузке
             const urlParams = new URLSearchParams(window.location.search);
             const urlGameId = urlParams.get('gameId');
             
-            if (urlGameId) {
+            if (urlGameId && gameIdInput) {
                 gameIdInput.value = urlGameId;
                 showJoinGameForm();
+            }
+        }
+
+        // Заглушки для функций, которые должны быть определены
+        function createGame() {
+            console.log("Создание игры...");
+            // Добавьте здесь вашу логику создания игры
+        }
+
+        function showJoinGameForm() {
+            console.log("Показ формы присоединения к игре...");
+            document.getElementById('mainMenu').classList.add('hidden');
+            document.getElementById('joinGameContainer').classList.remove('hidden');
+        }
+
+        function leaveGame() {
+            console.log("Покидание игры...");
+            // Добавьте здесь вашу логику покидания игры
+        }
+
+        function joinGame() {
+            console.log("Присоединение к игре...");
+            // Добавьте здесь вашу логику присоединения к игре
+        }
+
+        function hideJoinGameForm() {
+            console.log("Отмена присоединения...");
+            document.getElementById('joinGameContainer').classList.add('hidden');
+            document.getElementById('mainMenu').classList.remove('hidden');
+        }
+
+        function copyInviteLink() {
+            console.log("Копирование ссылки...");
+            const inviteLink = document.getElementById('inviteLink');
+            if (inviteLink) {
+                inviteLink.select();
+                document.execCommand('copy');
+                alert('Ссылка скопирована!');
             }
         }
 
