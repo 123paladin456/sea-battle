@@ -266,6 +266,14 @@
         // Инициализация интерфейса
         function init() {
             // Проверка, что элементы существуют, перед добавлением обработчиков
+            if (!createGameBtn) console.error('createGameBtn не найден');
+            if (!joinGameBtn) console.error('joinGameBtn не найден');
+            if (!leaveGameBtn) console.error('leaveGameBtn не найден');
+            if (!connectToGameBtn) console.error('connectToGameBtn не найден');
+            if (!cancelJoinBtn) console.error('cancelJoinBtn не найден');
+            if (!copyLinkBtn) console.error('copyLinkBtn не найден');
+            if (!gameIdInput) console.error('gameIdInput не найден');
+
             if (createGameBtn) createGameBtn.addEventListener('click', createGame);
             if (joinGameBtn) joinGameBtn.addEventListener('click', showJoinGameForm);
             if (leaveGameBtn) leaveGameBtn.addEventListener('click', leaveGame);
@@ -291,8 +299,14 @@
 
         function showJoinGameForm() {
             console.log("Показ формы присоединения к игре...");
-            document.getElementById('mainMenu').classList.add('hidden');
-            document.getElementById('joinGameContainer').classList.remove('hidden');
+            const mainMenu = document.getElementById('mainMenu');
+            const joinGameContainer = document.getElementById('joinGameContainer');
+            if (mainMenu && joinGameContainer) {
+                mainMenu.classList.add('hidden');
+                joinGameContainer.classList.remove('hidden');
+            } else {
+                console.error('mainMenu или joinGameContainer не найдены');
+            }
         }
 
         function leaveGame() {
@@ -307,8 +321,14 @@
 
         function hideJoinGameForm() {
             console.log("Отмена присоединения...");
-            document.getElementById('joinGameContainer').classList.add('hidden');
-            document.getElementById('mainMenu').classList.remove('hidden');
+            const joinGameContainer = document.getElementById('joinGameContainer');
+            const mainMenu = document.getElementById('mainMenu');
+            if (joinGameContainer && mainMenu) {
+                joinGameContainer.classList.add('hidden');
+                mainMenu.classList.remove('hidden');
+            } else {
+                console.error('joinGameContainer или mainMenu не найдены');
+            }
         }
 
         function copyInviteLink() {
@@ -318,11 +338,13 @@
                 inviteLink.select();
                 document.execCommand('copy');
                 alert('Ссылка скопирована!');
+            } else {
+                console.error('inviteLink не найден');
             }
         }
 
-        // Запуск игры
-        init();
+        // Запуск init после загрузки DOM
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
